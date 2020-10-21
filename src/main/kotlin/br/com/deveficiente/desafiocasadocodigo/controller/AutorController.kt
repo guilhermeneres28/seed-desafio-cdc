@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/autores")
@@ -14,7 +15,7 @@ class AutorController {
     private val log = LoggerFactory.getLogger(AutorController::class.java);
 
     @PostMapping
-    fun salvar(@RequestBody autorDTO: AutorDTO) {
+    fun salvar(@RequestBody @Valid autorDTO: AutorDTO) {
         log.info("Cadastrando autor: $autorDTO")
     }
 }

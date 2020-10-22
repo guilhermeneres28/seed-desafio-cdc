@@ -59,4 +59,14 @@ internal class AutorControllerTest{
                 .content(objectMapper.writeValueAsString(autor)))
                 .andExpect(status().is4xxClientError)
     }
+
+
+    @Test
+    fun deveRetornarBadRequestQuandoCriarUmAutorComEmailInvalido(){
+        val autor = Autor("Guilherme", "guilhermeneresbsb.com", "Dev Java")
+        this.mockMvc.perform(post("/api/autores")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(autor)))
+                .andExpect(status().is4xxClientError)
+    }
 }

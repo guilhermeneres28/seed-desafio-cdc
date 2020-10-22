@@ -11,14 +11,13 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/autores")
-class AutorController(
-        val autorRepository: AutorRepository
-) {
+class AutorController(val autorRepository: AutorRepository) {
 
-    private val log = LoggerFactory.getLogger(AutorController::class.java);
+    private val log = LoggerFactory.getLogger(AutorController::class.java)
 
     @PostMapping
     fun salvar(@RequestBody @Valid autorDTO: AutorDTO) {
+        log.info("Salvando Autor: $autorDTO")
         autorRepository.save(autorDTO.toEntity())
     }
 }

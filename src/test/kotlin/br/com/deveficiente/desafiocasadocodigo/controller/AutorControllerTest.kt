@@ -1,72 +1,39 @@
 package br.com.deveficiente.desafiocasadocodigo.controller
 
+import br.com.deveficiente.desafiocasadocodigo.dto.AutorDTO
 import br.com.deveficiente.desafiocasadocodigo.entity.Autor
 import br.com.deveficiente.desafiocasadocodigo.repository.AutorRepository
-import com.fasterxml.jackson.databind.ObjectMapper
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.AdditionalAnswers.returnsFirstArg
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mock
+import org.mockito.Mockito.`when`
+import org.mockito.junit.jupiter.MockitoExtension
+import org.springframework.web.bind.MethodArgumentNotValidException
 
-@WebMvcTest
+@ExtendWith(MockitoExtension::class)
 internal class AutorControllerTest{
 
-    @Autowired
-    lateinit var mockMvc: MockMvc
-
-    @Autowired
-    lateinit var objectMapper: ObjectMapper
-
-    @MockBean
+    @Mock
     lateinit var autorRepository: AutorRepository
 
-    @Test
-    fun deveCriarUmAutor(){
-        val autor = Autor("Guilherme", "guilhermeneresbsb@gmail.com", "Guilherme Dev Java")
-        this.mockMvc.perform(post("/api/autores")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(autor)))
-                .andExpect(status().is2xxSuccessful)
+    lateinit var autorController: AutorController
+
+    @BeforeEach
+    fun initAutorController() {
+        autorController = AutorController(autorRepository)
     }
 
     @Test
-    fun deveRetornarBadRequestQuandoCriarUmAutorComNomeVazio(){
-        val autor = Autor("", "guilhermeneresbsb@gmail.com", "Guilherme Dev Java")
-        this.mockMvc.perform(post("/api/autores")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(autor)))
-                .andExpect(status().is4xxClientError)
-    }
-
-    @Test
-    fun deveRetornarBadRequestQuandoCriarUmAutorComEmailVazio(){
-        val autor = Autor("Guilherme", "", "Guilherme Dev Java")
-        this.mockMvc.perform(post("/api/autores")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(autor)))
-                .andExpect(status().is4xxClientError)
-    }
-
-    @Test
-    fun deveRetornarBadRequestQuandoCriarUmAutorComDescricaoVazia(){
-        val autor = Autor("Guilherme", "guilhermeneresbsb@gmail.com", "")
-        this.mockMvc.perform(post("/api/autores")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(autor)))
-                .andExpect(status().is4xxClientError)
-    }
-
-
-    @Test
-    fun deveRetornarBadRequestQuandoCriarUmAutorComEmailInvalido(){
-        val autor = Autor("Guilherme", "guilhermeneresbsb.com", "Dev Java")
-        this.mockMvc.perform(post("/api/autores")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(autor)))
-                .andExpect(status().is4xxClientError)
+    fun `Deve criar autor e retornar objeto com data de criação preenchida`() {
+        val autorDTO = AutorDTO("Guilherme", "guilhermeneresbsb@gmail.com", "Guilherme Dev Java")
+        `when`(autorRepository.save(any(Autor::class.java))).then(returnsFirstArg<Autor>())
+        val autorSalvo = autorController.salvar(autorDTO)
+        assertThat(autorSalvo.criadoEm).isNotNull()
     }
 }
